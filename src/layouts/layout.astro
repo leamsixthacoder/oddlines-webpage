@@ -1,0 +1,40 @@
+---
+import '../styles/global.css';
+import Navigation from '../components/navigation.astro';
+---
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>OddLines</title>
+	</head>
+	<body>
+		<!-- El Wrapper envuelve a TODO el contenido (slot) -->
+		<div class="mobile-wrapper">
+			<slot />
+            <Navigation />
+		</div>
+	</body>
+</html>
+
+<style is:global>
+	body {
+		margin: 0;
+		padding: 0;
+		background-color: #050810; /* Un color oscuro para el fondo de afuera */
+		display: flex;
+		justify-content: center; /* Centra el wrapper en la pantalla del PC */
+	}
+
+	.mobile-wrapper {
+		width: 100%;
+		max-width: 480px; /* El ancho máximo de un móvil grande */
+		min-height: 100vh;
+		background-color: #0A0E1A; /* El color real de tu app */
+		box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Sombra para que resalte en PC */
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+</style>
