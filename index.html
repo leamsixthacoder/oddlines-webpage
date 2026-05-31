@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddlines — Sharper lines, smarter bets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/od.css">
+</head>
+<body>
+<div class="app"><div class="frame">
+  <header id="hdr"></header>
+  <main class="main">
+    <div id="hero"></div>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="quicklinks"></h2></div>
+      <div class="qgrid" id="qlinks"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="popular"></h2><a href="sports.html" data-i18n="seeall"></a></div>
+      <div class="scroll-x" id="sportRow"></div>
+    </section>
+
+    <section class="section" id="motdWrap">
+      <div class="section-hd"><h2 data-i18n="h_featured"></h2></div>
+      <div id="motd"></div>
+    </section>
+
+    <section class="section">
+      <a class="boost" href="bet-now.html">
+        <span class="bi" id="boostIco"></span>
+        <div><h3 data-i18n="boost"></h3><p data-i18n="bet_step1"></p></div>
+        <span class="arrow" id="boostArrow"></span>
+      </a>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="upcoming"></h2><a href="odds.html" data-i18n="seeall"></a></div>
+      <div class="card" id="liveList"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="h_value"></h2></div>
+      <div class="card" id="valueList"></div>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
+  <nav id="tabbar"></nav>
+</div></div>
+
+<script src="js/od-data.js"></script>
+<script src="js/od-app.js"></script>
+<script src="js/od-tweaks.js"></script>
+<script>
+const heroV = new URLSearchParams(location.search).get('hero') || 'a';
+
+function buildHero(v){
+  const I=OD.icons, t=OD.t;
+  if(v==='b'){
+    const ev=OD.allEvents().filter(e=>e.live).slice(0,4);
+    const ticks=ev.map(e=>`<span class="tick">${e.home.abbr} <b>${e.score?e.score[0]:''}-${e.score?e.score[1]:''}</b> ${e.away.abbr} <span class="live"><span class="pulse"></span></span></span>`).join('');
+    return `<section class="hero hero-b"><div class="hero-glow"></div>
+      <p class="eyebrow grad-text">ODDLINES</p>
+      <h1 class="hero-h" data-i18n="hero_t"></h1>
+      <p class="hero-sub" data-i18n="hero_s"></p>
+      <div class="hero-cta">
+        <a class="btn btn-grad" href="odds.html">${t('oddsboard')} ${I.arrow}</a>
+        <a class="btn btn-ghost" href="sports.html" data-i18n="h_explore"></a>
+      </div>
+      <div class="ticker">${ticks}</div>
+    </section>`;
+  }
+  if(v==='c'){
+    const sports=OD.sports.map(s=>`<a class="sportchip" href="odds.html#${s.key}"><span class="si">${I[s.icon]}</span><span data-i18n="sport_${s.key}"></span></a>`).join('');
+    return `<section class="hero hero-c"><div class="hero-glow"></div>
+      <p class="eyebrow grad-text" data-i18n="today"></p>
+      <h1 class="hero-h" style="font-size:clamp(26px,7.5vw,34px)" data-i18n="hero_t"></h1>
+      <div class="searchbar">${I.search}<input data-i18n-ph="h_explore" aria-label="search"></div>
+      <div class="scroll-x" style="margin-top:14px">${sports}</div>
+    </section>`;
+  }
+  // variant A — featured spotlight
+  const e=OD.sports[0].leagues[0].events[0];
+  return `<section class="hero hero-a"><div class="hero-glow"></div>
+    <div class="spotlight"><div class="spotlight-in">
+      <div class="spot-top">
+        <span class="eyebrow grad-text" data-i18n="featured"></span>
+        ${e.live?`<span class="live"><span class="pulse"></span>${t('live')} · ${e.minute}'</span>`:''}
+      </div>
+      <div class="spot-vs">
+        <div class="spot-team"><span class="crest" style="background:${e.home.color}">${e.home.abbr}</span><span class="name">${e.home.name}</span></div>
+        <div class="spot-mid">${e.score?`<div class="sc">${e.score[0]} : ${e.score[1]}</div>`:'<div class="vs">VS</div>'}<div class="vs">${e.league}</div></div>
+        <div class="spot-team"><span class="crest" style="background:${e.away.color}">${e.away.abbr}</span><span class="name">${e.away.name}</span></div>
+      </div>
+      <div class="odds-row">
+        <button class="odd" data-odd="${e.id}-1" onclick="OD.toggleSlip('${e.id}-1')"><span class="od-lbl">1</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[0],OD.get('odds'))}</span></button>
+        <button class="odd" data-odd="${e.id}-x" onclick="OD.toggleSlip('${e.id}-x')"><span class="od-lbl">X</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[1],OD.get('odds'))}</span></button>
+        <button class="odd" data-odd="${e.id}-2" onclick="OD.toggleSlip('${e.id}-2')"><span class="od-lbl">2</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[2],OD.get('odds'))}</span></button>
+      </div>
+    </div></div>
+  </section>`;
+}
+
+OD.render = function(){
+  const I=OD.icons;
+  document.getElementById('hero').innerHTML = buildHero(heroV);
+
+  // quick links
+  const ql=[
+    {icon:'grid',t:'nav_sports',d:'allsports',href:'sports.html'},
+    {icon:'odds',t:'nav_odds',d:'oddsboard',href:'odds.html'},
+    {icon:'help',t:'nav_help',d:'faq',href:'help.html'},
+    {icon:'shield',t:'nav_about',d:'mission_t',href:'about.html'},
+  ];
+  document.getElementById('qlinks').innerHTML = ql.map(q=>`<a class="qtile" href="${q.href}">
+    <span class="qi">${I[q.icon]}</span><span><span class="qt" data-i18n="${q.t}"></span><br><span class="qd" data-i18n="${q.d}"></span></span></a>`).join('');
+
+  // sport row
+  document.getElementById('sportRow').innerHTML = OD.sports.map(s=>`<a class="sportchip" href="odds.html#${s.key}"><span class="si">${I[s.icon]}</span><span data-i18n="sport_${s.key}"></span></a>`).join('');
+
+  // match of the day (use a second featured for variety; if hero A already shows s1, show NBA)
+  const motd = heroV==='a' ? OD.allEvents().find(e=>e.id==='b1') : OD.sports[0].leagues[0].events[0];
+  document.getElementById('motd').innerHTML = `<div class="card">${OD.matchCard(motd)}</div>`;
+
+  // live + upcoming
+  const evs = OD.allEvents().slice(0,5);
+  document.getElementById('liveList').innerHTML = evs.map(e=>OD.matchCard(e)).join('');
+
+  // value props
+  const vals=[{i:'star',t:'v1t',d:'v1d'},{i:'zap',t:'v2t',d:'v2d'},{i:'shield',t:'v3t',d:'v3d'}];
+  document.getElementById('valueList').innerHTML = vals.map(v=>`<div class="value"><span class="vi">${I[v.i]}</span><div><h3 data-i18n="${v.t}"></h3><p data-i18n="${v.d}"></p></div></div>`).join('');
+
+  document.getElementById('boostIco').innerHTML=I.zap;
+  document.getElementById('boostArrow').innerHTML=I.arrow;
+};
+
+OD.render();
+OD.boot('home');
+</script>
+</body>
+</html>

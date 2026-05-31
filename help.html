@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddlines — Help Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/od.css">
+<style>
+  .faq-q{padding:15px var(--pad);width:100%;text-align:left;display:flex;gap:12px;align-items:center;}
+  .faq-q .t{font-weight:600;font-size:14px;flex:1;}
+  .faq-q .chev{color:var(--text-3);transition:transform .25s;}
+  .acc.open .faq-q .chev{transform:rotate(180deg);}
+  .faq-a{font-size:13.5px;color:var(--text-2);line-height:1.6;padding:0 var(--pad) 16px;}
+</style>
+</head>
+<body>
+<div class="app"><div class="frame">
+  <header id="hdr"></header>
+  <main class="main">
+    <div class="page-hd"><h1 data-i18n="help_t"></h1><p data-i18n="help_s"></p></div>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="howto"></h2></div>
+      <div class="card" style="padding:4px var(--pad)" id="howSteps"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="faq"></h2></div>
+      <div class="card" id="faqList" style="overflow:hidden"></div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="section-hd"><h2 data-i18n="contact"></h2></div>
+      <form class="card" style="padding:18px var(--pad)" id="cform">
+        <div class="field"><label data-i18n="c_name"></label><input required data-i18n-ph="c_name"></div>
+        <div class="field"><label data-i18n="c_email"></label><input type="email" required data-i18n-ph="c_email"></div>
+        <div class="field"><label data-i18n="c_msg"></label><textarea required data-i18n-ph="c_msg"></textarea></div>
+        <button class="btn btn-grad btn-block" type="submit" data-i18n="c_send"></button>
+      </form>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
+  <nav id="tabbar"></nav>
+</div></div>
+
+<script src="js/od-data.js"></script>
+<script src="js/od-app.js"></script>
+<script src="js/od-tweaks.js"></script>
+<script>
+const FAQ={
+  en:[
+    {q:"How do I place a bet?",a:"Browse odds here on the web, tap any price to add it to your bet slip, then hit Bet Now to open the licensed Oddlines app where you confirm and pay."},
+    {q:"What do the odds numbers mean?",a:"Decimal odds (1.85) show your total return per $1 staked. You can switch to American (+150) or fractional (5/2) anytime from the odds toggle or Tweaks panel."},
+    {q:"Is browsing odds the same as betting?",a:"No. This site shows live lines for free. Real wagers are only placed inside the regulated mobile app, where your wallet is secured."},
+    {q:"How do I create an account?",a:"Accounts are created in the app during your first bet. You'll verify your identity once, as required by licensing regulations."},
+    {q:"How fast are payouts?",a:"Markets settle the moment they close — winnings hit your app wallet automatically, typically within seconds."},
+    {q:"Can I set deposit limits?",a:"Yes. The app includes deposit limits, time-outs and self-exclusion under Responsible Play settings."},
+  ],
+  es:[
+    {q:"¿Cómo hago una apuesta?",a:"Explora las cuotas aquí en la web, toca cualquier precio para añadirlo a tu boleto y pulsa Apostar para abrir la app licenciada de Oddlines, donde confirmas y pagas."},
+    {q:"¿Qué significan los números de las cuotas?",a:"Las cuotas decimales (1.85) muestran tu retorno total por cada $1 apostado. Puedes cambiar a americanas (+150) o fraccionarias (5/2) desde el selector de cuotas o el panel de Ajustes."},
+    {q:"¿Ver cuotas es lo mismo que apostar?",a:"No. Este sitio muestra líneas en vivo gratis. Las apuestas reales solo se realizan dentro de la app regulada, donde tu billetera está protegida."},
+    {q:"¿Cómo creo una cuenta?",a:"Las cuentas se crean en la app durante tu primera apuesta. Verificarás tu identidad una vez, según exige la regulación."},
+    {q:"¿Qué tan rápidos son los pagos?",a:"Los mercados se liquidan al cerrarse — las ganancias llegan a tu billetera automáticamente, normalmente en segundos."},
+    {q:"¿Puedo poner límites de depósito?",a:"Sí. La app incluye límites de depósito, pausas y autoexclusión en los ajustes de Juego Responsable."},
+  ]
+};
+
+OD.render = function(){
+  const I=OD.icons, t=OD.t, lang=OD.get('lang');
+  document.getElementById('howSteps').innerHTML = ['bet_step1','bet_step2','bet_step3']
+    .map((s,i)=>`<div class="step"><span class="num">${i+1}</span><span class="st" data-i18n="${s}"></span></div>`).join('');
+  document.getElementById('faqList').innerHTML = FAQ[lang].map((f,i)=>`
+    <div class="acc">
+      <button class="faq-q acc-hd"><span class="t">${f.q}</span><span class="chev">${I.chevron}</span></button>
+      <div class="acc-body"><div><p class="faq-a">${f.a}</p></div></div>
+    </div>`).join('');
+  OD.initAccordions(document.getElementById('faqList'));
+};
+
+OD.render();
+OD.boot('help');
+
+document.getElementById('cform').addEventListener('submit',e=>{
+  e.preventDefault();
+  const to=document.createElement('div'); to.className='toast'; to.textContent=OD.t('c_sent');
+  document.body.appendChild(to); requestAnimationFrame(()=>to.classList.add('show'));
+  setTimeout(()=>{to.classList.remove('show');setTimeout(()=>to.remove(),350);},2600);
+  e.target.reset();
+});
+</script>
+</body>
+</html>

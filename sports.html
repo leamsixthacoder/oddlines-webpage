@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddlines — All Sports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/od.css">
+</head>
+<body>
+<div class="app"><div class="frame">
+  <header id="hdr"></header>
+  <main class="main">
+    <div class="page-hd">
+      <h1 data-i18n="allsports"></h1>
+      <p data-i18n="hero_s"></p>
+    </div>
+    <div class="searchbar" style="margin-top:16px"><span id="schIco"></span><input data-i18n-ph="h_explore" aria-label="search"></div>
+    <section class="section" style="margin-top:14px">
+      <div id="sportsAcc"></div>
+    </section>
+    <footer id="footer"></footer>
+  </main>
+  <nav id="tabbar"></nav>
+</div></div>
+
+<script src="js/od-data.js"></script>
+<script src="js/od-app.js"></script>
+<script src="js/od-tweaks.js"></script>
+<script>
+OD.render = function(){
+  const I=OD.icons, t=OD.t;
+  document.getElementById('schIco').innerHTML=I.search;
+  const html = OD.sports.map((s,i)=>{
+    const evCount = s.leagues.reduce((a,l)=>a+l.events.length,0);
+    const leagues = s.leagues.map(l=>{
+      const events = l.events.map(e=>OD.matchCard(e)).join('');
+      return `<div style="padding-left:4px">
+        <div class="row" style="padding:11px var(--pad) 6px;justify-content:space-between">
+          <span class="eyebrow" style="letter-spacing:.1em">${l.name}</span>
+          <span class="match-meta">${l.events.length} ${t('events')}</span>
+        </div>
+        ${events}</div>`;
+    }).join('');
+    return `<div class="acc ${i===0?'open':''}">
+      <button class="acc-hd">
+        <span class="ico">${I[s.icon]}</span>
+        <span><span class="ttl" data-i18n="sport_${s.key}"></span><br><span class="cnt">${s.leagues.length} ${t('leagues')} · ${evCount} ${t('events')}</span></span>
+        <span class="chev">${I.chevron}</span>
+      </button>
+      <div class="acc-body"><div>${leagues}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('sportsAcc').innerHTML = html;
+};
+OD.render();
+OD.boot('sports');
+</script>
+</body>
+</html>

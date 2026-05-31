@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddlines — Odds Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/od.css">
+</head>
+<body>
+<div class="app"><div class="frame">
+  <header id="hdr"></header>
+  <main class="main">
+    <div class="page-hd">
+      <h1 data-i18n="oddsboard"></h1>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <div class="filters" id="statusFilters" style="margin:0"></div>
+        <div class="seg" id="oddsFmt"></div>
+      </div>
+    </div>
+    <div class="scroll-x" id="sportTabs" style="margin-top:16px"></div>
+    <section class="section" style="margin-top:14px"><div id="oddsList"></div></section>
+    <footer id="footer"></footer>
+  </main>
+  <nav id="tabbar"></nav>
+</div></div>
+
+<script src="js/od-data.js"></script>
+<script src="js/od-app.js"></script>
+<script src="js/od-tweaks.js"></script>
+<script>
+let activeSport = location.hash.replace('#','') || 'all';
+let activeStatus = 'all';
+
+function isToday(e){ if(!e.start) return e.live; const d=new Date(e.start); const n=new Date('2026-06-01'); return d.toDateString()===n.toDateString(); }
+
+OD.render = function(){
+  const t=OD.t, I=OD.icons;
+
+  // status filters
+  const stf=[['all','filter_all'],['live','filter_live'],['today','filter_today']];
+  document.getElementById('statusFilters').innerHTML = stf.map(([v,k])=>`<button class="chip ${activeStatus===v?'on':''}" data-st="${v}" data-i18n="${k}"></button>`).join('');
+
+  // odds format quick toggle
+  const fmts=[['decimal','1.85'],['american','+150'],['fractional','5/2']];
+  document.getElementById('oddsFmt').innerHTML = fmts.map(([v,l])=>`<button data-fmt="${v}" class="${OD.get('odds')===v?'on':''}">${l}</button>`).join('');
+
+  // sport tabs
+  const tabs = [{key:'all',label:t('filter_all')}].concat(OD.sports.map(s=>({key:s.key,icon:s.icon})));
+  document.getElementById('sportTabs').innerHTML = tabs.map(s=>{
+    const lbl = s.key==='all'?`<span>${t('filter_all')}</span>`:`<span class="si" style="width:22px;height:22px">${I[s.icon]}</span><span data-i18n="sport_${s.key}"></span>`;
+    return `<button class="sportchip ${activeSport===s.key?'on':''}" data-sp="${s.key}" style="${activeSport===s.key?'border-color:var(--acc)':''}">${lbl}</button>`;
+  }).join('');
+
+  // build list grouped by league
+  let groups=[];
+  OD.sports.forEach(s=>{
+    if(activeSport!=='all' && s.key!==activeSport) return;
+    s.leagues.forEach(l=>{
+      let evs=l.events.filter(e=> activeStatus==='all' ? true : activeStatus==='live' ? e.live : isToday(e));
+      if(evs.length) groups.push({sport:s,league:l,evs});
+    });
+  });
+  const list = groups.length ? groups.map(g=>`
+    <div class="card" style="margin-bottom:12px;overflow:hidden">
+      <div class="row" style="padding:13px var(--pad);border-bottom:1px solid var(--line);justify-content:space-between">
+        <span class="row" style="gap:9px"><span class="si" style="width:18px;height:18px;color:var(--acc)">${I[g.sport.icon]}</span><b style="font-family:var(--f-head);font-size:14px">${g.league.name}</b></span>
+        <span class="match-meta">${g.evs.length} ${t('events')}</span>
+      </div>
+      ${g.evs.map(e=>OD.matchCard(e)).join('')}
+    </div>`).join('')
+    : `<div class="card center" style="padding:40px 20px;color:var(--text-3)">${t('filter_live')} — 0 ${t('events')}</div>`;
+  document.getElementById('oddsList').innerHTML = list;
+
+  // wire
+  document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{activeStatus=b.dataset.st;OD.render();OD.applyI18n();OD.paintSlip();});
+  document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{activeSport=b.dataset.sp;OD.render();OD.applyI18n();OD.paintSlip();});
+  document.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{OD.set('odds',b.dataset.fmt);OD.render();OD.applyI18n();OD.paintSlip();});
+};
+OD.render();
+OD.boot('odds');
+</script>
+</body>
+</html>

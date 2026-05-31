@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddlines — About Us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/od.css">
+<style>
+  .about-hero{position:relative;overflow:hidden;padding:26px var(--pad) 6px;}
+  .about-hero .glow{position:absolute;inset:-30% -10% auto -10%;height:260px;background:var(--grad);filter:blur(70px);opacity:.22;}
+  .about-hero > *{position:relative;}
+  .about-hero h1{font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:clamp(26px,7.6vw,36px);line-height:1;letter-spacing:-.01em;margin-bottom:12px;}
+  .about-hero p{color:var(--text-2);font-size:14.5px;max-width:34ch;text-wrap:pretty;}
+  .mission{padding:22px var(--pad);border-radius:var(--r);background:var(--grad);color:#fff;}
+  .mission h3{font-family:var(--f-head);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-bottom:10px;}
+  .mission p{font-size:16px;line-height:1.5;text-wrap:pretty;}
+  .leader{display:flex;align-items:center;gap:13px;padding:13px var(--pad);}
+  .leader + .leader{border-top:1px solid var(--line);}
+  .leader .av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-head);font-weight:700;color:#fff;font-size:15px;flex:none;}
+  .leader .nm{font-weight:600;font-size:14px;}
+  .leader .ro{font-size:12px;color:var(--text-3);}
+  .resp{display:flex;gap:14px;padding:18px var(--pad);align-items:flex-start;}
+  .resp .badge18{width:38px;height:38px;font-size:14px;flex:none;}
+</style>
+</head>
+<body>
+<div class="app"><div class="frame">
+  <header id="hdr"></header>
+  <main class="main">
+
+    <section class="about-hero">
+      <div class="glow"></div>
+      <p class="eyebrow grad-text">ODDLINES</p>
+      <h1 data-i18n="about_t"></h1>
+      <p data-i18n="about_s"></p>
+    </section>
+
+    <section class="section">
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="section">
+      <div class="mission">
+        <h3 data-i18n="mission_t"></h3>
+        <p data-i18n="mission_d"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="values"></h2></div>
+      <div class="card" id="valueList"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="team"></h2></div>
+      <div class="card" id="leaders"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-hd"><h2 data-i18n="responsible"></h2></div>
+      <div class="card resp">
+        <span class="badge18">18+</span>
+        <p class="muted" style="font-size:13.5px;line-height:1.6" data-i18n="resp_d"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <a class="btn btn-grad btn-block btn-lg" href="odds.html"><span data-i18n="oddsboard"></span><span id="ctaArrow"></span></a>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
+  <nav id="tabbar"></nav>
+</div></div>
+
+<script src="js/od-data.js"></script>
+<script src="js/od-app.js"></script>
+<script src="js/od-tweaks.js"></script>
+<script>
+OD.render = function(){
+  const I=OD.icons, t=OD.t;
+  const stats=[['12K','stat1'],['6','stat2'],['3s','stat3'],['9','stat4']];
+  document.getElementById('stats').innerHTML = stats.map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l" data-i18n="${l}"></div></div>`).join('');
+
+  const vals=[{i:'star',t:'v1t',d:'v1d'},{i:'zap',t:'v2t',d:'v2d'},{i:'shield',t:'v3t',d:'v3d'}];
+  document.getElementById('valueList').innerHTML = vals.map(v=>`<div class="value"><span class="vi">${I[v.i]}</span><div><h3 data-i18n="${v.t}"></h3><p data-i18n="${v.d}"></p></div></div>`).join('');
+
+  const team=[
+    {n:'Mara Castillo',r:OD.get('lang')==='es'?'CEO y Cofundadora':'CEO & Co-founder',c:'#2E6BFF',in:'MC'},
+    {n:'Daniel Okafor',r:OD.get('lang')==='es'?'Jefe de Trading':'Head of Trading',c:'#36E2A8',in:'DO'},
+    {n:'Lucía Romero',r:OD.get('lang')==='es'?'Directora de Producto':'Head of Product',c:'#7A5AE0',in:'LR'},
+  ];
+  document.getElementById('leaders').innerHTML = team.map(p=>`<div class="leader"><span class="av" style="background:${p.c}">${p.in}</span><div><div class="nm">${p.n}</div><div class="ro">${p.r}</div></div></div>`).join('');
+
+  document.getElementById('ctaArrow').innerHTML=I.arrow;
+};
+OD.render();
+OD.boot('about');
+</script>
+</body>
+</html>
