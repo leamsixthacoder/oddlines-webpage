@@ -47,6 +47,10 @@ const I = OD.icons = {
   tennis:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5 5c3.5 3 3.5 11 0 14M19 5c-3.5 3-3.5 11 0 14"/></svg>',
   baseball:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M7 4.5c1.5 2 1.5 13 0 15M17 4.5c-1.5 2-1.5 13 0 15"/></svg>',
   mma:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11V7a2 2 0 0 1 4 0M10 9V6a2 2 0 0 1 4 0v3M14 9V7a2 2 0 0 1 4 0v6a6 6 0 0 1-6 6H9a5 5 0 0 1-5-5v-1a2 2 0 0 1 4 0"/></svg>',
+  f1:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14v4H5zM5 9l3 5M19 9l-3 5M8 14h8M8 14l-2 5M16 14l2 5"/></svg>',
+  esports:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3M15.5 12h.01M18 13.5h.01"/></svg>',
+  casino:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>',
+  fire:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 3-1.5 4.5-3 6.5C7.5 10.4 7 12 7 13.5A5 5 0 0 0 17 14c0-2-1-3.5-2.2-4.8C13.6 7.9 13 6.5 13.5 4.5 12.9 5 12.4 5.7 12 6.5 11.7 5 11.6 3.4 12 2Z"/></svg>',
 };
 
 /* ---------- i18n ---------- */
@@ -145,13 +149,22 @@ function langSeg(){
 }
 OD.mountHeader = function(active){
   const el=document.getElementById('hdr'); if(!el) return;
-  const showBack = active && active!=='home';
-  el.className='hdr';
-  el.innerHTML=`<div class="hdr-row">
+  const I=OD.icons;
+  el.className='topbar';
+  const nav=[
+    {k:'sports',href:'sports.html',l:'allsports'},
+    {k:'odds',href:'odds.html',l:'in_play'},
+    {k:'promos',href:'index.html#promos',l:'promotions'},
+  ];
+  const navHtml=nav.map(n=>`<a class="tm-link ${active===n.k?'on':''}" href="${n.href}" data-i18n="${n.l}"></a>`).join('');
+  el.innerHTML=`<div class="topbar-in">
     ${logoHTML()}
-    <div class="hdr-actions">
+    <nav class="tm-nav">${navHtml}</nav>
+    <div class="tm-actions">
       ${langSeg()}
-      <button class="icon-btn" id="tweakOpen" aria-label="Tweaks" style="display:none">${I.sliders}</button>
+      <a class="tm-btn tm-ghost" href="index.html#promos" data-i18n="offers"></a>
+      <a class="tm-btn tm-join" href="bet-now.html" data-i18n="join"></a>
+      <a class="tm-btn tm-login" href="bet-now.html" data-i18n="login"></a>
     </div>
   </div>`;
   el.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{ OD.set('lang',b.dataset.lang); location.reload(); });
