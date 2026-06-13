@@ -41,11 +41,6 @@
       <div class="ext-note"><span id="extIco"></span><span data-i18n="bet_note"></span></div>
     </section>
 
-    <section class="section" id="slipSection">
-      <div class="section-hd"><h2 data-i18n="betslip"></h2><button id="clearSlip" style="font-size:12px;color:var(--neg);font-weight:600">✕</button></div>
-      <div class="card" id="slipBox"></div>
-    </section>
-
     <section class="section">
       <div class="section-hd"><h2 data-i18n="bet_step2"></h2></div>
       <div class="card" style="padding:4px var(--pad)" id="steps"></div>
@@ -60,19 +55,8 @@
 <script src="js/od-app.js"></script>
 <script src="js/od-tweaks.js"></script>
 <script>
-function resolve(id){
-  const base=id.replace(/-(1|x|2)$/,''); const sel=id.slice(base.length+1);
-  let ev=null; OD.allEvents().forEach(e=>{if(e.id===base)ev=e;});
-  if(!ev) return null;
-  const m=ev.markets.moneyline;
-  const odds = sel==='1'?m[0]:sel==='x'?m[1]:m[2];
-  const lbl = sel.toUpperCase();
-  const team = sel==='1'?ev.home.name:sel==='2'?ev.away.name:OD.t('draw');
-  return {ev,odds,lbl,team};
-}
-
 OD.render = function(){
-  const I=OD.icons, t=OD.t;
+  const I=OD.icons;
   document.getElementById('gwIco').innerHTML=I.bolt;
   document.getElementById('goArrow').innerHTML=I.arrow;
   document.getElementById('extIco').innerHTML=I.shield;
@@ -80,20 +64,6 @@ OD.render = function(){
   // steps
   const steps=['bet_step1','bet_step2','bet_step3'];
   document.getElementById('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="num">${i+1}</span><span class="st" data-i18n="${s}"></span></div>`).join('');
-
-  // slip
-  const ids=OD.get('slip');
-  const box=document.getElementById('slipBox');
-  if(!ids.length){
-    box.innerHTML=`<div class="center" style="padding:30px 20px;color:var(--text-3)">${t('betslip')} — 0<br><a href="odds.html" style="color:var(--acc);font-weight:600;font-size:13px;display:inline-block;margin-top:8px">${t('oddsboard')} →</a></div>`;
-  } else {
-    box.innerHTML = ids.map(id=>{const r=resolve(id); if(!r)return''; 
-      return `<div class="slip-item"><span class="pick">${r.lbl}</span>
-        <div><div style="font-weight:600;font-size:13.5px">${r.team}</div>
-        <div class="match-meta">${r.ev.home.abbr} v ${r.ev.away.abbr} · ${r.ev.league}</div></div>
-        <span class="o">${OD.fmtOdds(r.odds,OD.get('odds'))}</span></div>`;}).join('');
-  }
-  document.getElementById('clearSlip').onclick=()=>{OD.set('slip',[]);OD.render();OD.applyI18n();OD.paintSlip();};
 };
 OD.render();
 OD.boot('bet');

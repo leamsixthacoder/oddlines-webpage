@@ -3,11 +3,14 @@
    Mobile-first sports betting platform
    ============================================================ */
 
-/* ---------- Fonts ---------- */
-@font-face{font-family:"HSR";src:url("../assets/fonts/hsr-regular.otf") format("opentype");font-weight:400;font-display:swap;}
-@font-face{font-family:"HSR";src:url("../assets/fonts/hsr-bold.otf") format("opentype");font-weight:700;font-display:swap;}
-@font-face{font-family:"HSR Heavy";src:url("../assets/fonts/hsr-extendedheavy.otf") format("opentype");font-weight:800;font-display:swap;}
-@font-face{font-family:"HSR Wide";src:url("../assets/fonts/hsr-expandedbold.otf") format("opentype");font-weight:700;font-display:swap;}
+/* ---------- Fonts ----------
+   NOTE: the bundled HSR .otf files are a DEMO/trial license — they render a
+   "DEMO" watermark glyph in place of the digit 4 (and likely other glyphs),
+   so they cannot be used. Display + numerals now use Exo 2 (SIL OFL, free),
+   chosen to echo the wide / angular / techy ODDLINES wordmark.
+   To restore the real HSR once licensed: re-add its @font-face blocks and
+   point --f-display / --f-head / --f-num back at them. */
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&display=swap");
 
 /* ---------- Tokens ---------- */
 :root{
@@ -34,9 +37,9 @@
   --gap:12px;
 
   /* fonts */
-  --f-display:"HSR Heavy","HSR",sans-serif;
-  --f-head:"HSR",sans-serif;
-  --f-num:"HSR Wide","HSR",sans-serif;
+  --f-display:"Exo 2","Hanken Grotesk",sans-serif;
+  --f-head:"Exo 2","Hanken Grotesk",sans-serif;
+  --f-num:"Exo 2","Hanken Grotesk",sans-serif;
   --f-body:"Hanken Grotesk",-apple-system,system-ui,sans-serif;
 
   /* dark theme (default) */
@@ -79,7 +82,7 @@
 [data-radius="sharp"]{--r:6px;--r-sm:4px;--r-lg:9px;}
 [data-radius="round"]{--r:22px;--r-sm:14px;--r-lg:30px;}
 /* heading style */
-[data-headstyle="bold"]{--f-display:"HSR",sans-serif;}
+[data-headstyle="bold"]{--f-display:"Exo 2","Hanken Grotesk",sans-serif;}
 
 /* ---------- Reset ---------- */
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,6 +96,9 @@ body{
   text-rendering:optimizeLegibility;
 }
 a{color:inherit;text-decoration:none;}
+/* tabular figures everywhere numerals carry meaning (odds, scores, stats) */
+.od-val,.team .score,.stat .n,.balance,.spot-mid,.spot-mid .sc,.rail-count,.ri-odd,
+.rf-input input,.rf-return b,.rf-comb,.step .num,.tick b,.od-lbl{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
 button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
 img{display:block;max-width:100%;}
 input,textarea,select{font:inherit;color:inherit;}
@@ -223,7 +229,7 @@ ul{list-style:none;}
   background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);
   transition:.13s;position:relative;overflow:hidden;
 }
-.odd:hover{border-color:var(--acc);}
+.odd:hover{border-color:var(--line);}
 .odd.sel{background:var(--grad);border-color:transparent;}
 .odd.sel .od-val,.odd.sel .od-lbl{color:#fff;}
 .od-lbl{font-size:10.5px;font-weight:700;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;}
@@ -398,3 +404,185 @@ ul{list-style:none;}
   background:var(--pos);color:#04210a;font-weight:700;font-size:13px;padding:12px 20px;border-radius:999px;
   box-shadow:var(--shadow-lg);opacity:0;transition:.3s;}
 .toast.show{opacity:1;transform:translateX(-50%);}
+
+/* ============================================================
+   RESPONSIVE — tablet · laptop · desktop
+   Phone (<768): unchanged mobile column + bottom tab bar.
+   Tablet (768–1139): fixed left sidebar + slide-out slip drawer.
+   Desktop (≥1140): sidebar + content + permanently docked slip rail.
+   ============================================================ */
+:root{ --side-w:244px; --rail-w:348px; }
+
+/* header slip badge */
+.od-slip-btn{position:relative;}
+.od-slip-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;
+  background:var(--neg);color:#fff;font-family:var(--f-num);font-weight:700;font-size:10px;
+  display:none;place-items:center;line-height:1;border:2px solid var(--bg);}
+
+/* sidebar-only elements hidden by default (mobile) */
+.side-brand{display:none;}
+/* slip rail + backdrop hidden on mobile (slip lives on its own page) */
+#slipRail{display:none;}
+#slipBackdrop{display:none;}
+
+/* ------------------------------------------------------------
+   TABLET & UP  (≥768) — bottom bar becomes a left sidebar
+   ------------------------------------------------------------ */
+@media(min-width:768px){
+  .app{display:block;padding-left:var(--side-w);}
+  .frame{max-width:none;width:auto;border:none;overflow-x:visible;}
+
+  /* slim top bar */
+  .hdr .brand{display:none;}
+  .hdr-row{max-width:1000px;margin:0 auto;padding:14px 28px;}
+
+  /* content column */
+  .main{max-width:1000px;margin:0 auto;padding:0 28px 72px;}
+  .section{margin-top:30px;}
+
+  /* ---- #tabbar → vertical sidebar ---- */
+  .tabbar{
+    left:0;right:auto;top:0;bottom:0;transform:none;
+    width:var(--side-w);max-width:none;height:100dvh;
+    grid-template-columns:none;display:flex;flex-direction:column;align-items:stretch;gap:5px;
+    border-top:none;border-right:1px solid var(--line);
+    padding:20px 16px calc(18px + env(safe-area-inset-bottom));
+    background:color-mix(in oklab,var(--bg) 94%, transparent);
+    overflow-y:auto;scrollbar-width:none;
+  }
+  .tabbar::-webkit-scrollbar{display:none;}
+  .side-brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;margin-bottom:8px;border-bottom:1px solid var(--line);}
+  .side-brand .mark{height:30px;width:auto;}
+  .side-brand .word{height:15px;width:auto;}
+
+  .tab{
+    flex-direction:row;justify-content:flex-start;align-items:center;gap:14px;
+    padding:11px 13px;border-radius:var(--r-sm);order:1;color:var(--text-2);
+    transition:background .15s,color .15s;
+  }
+  .tab svg{width:21px;height:21px;}
+  .tab span{font-family:var(--f-head);font-weight:700;font-size:13.5px;letter-spacing:.01em;}
+  .tab:hover{background:var(--surface-2);color:var(--text);}
+  .tab.active{background:var(--surface-2);color:var(--text);}
+  .tab.active svg{color:var(--acc);}
+
+  /* CTA → full-width gradient button pinned to bottom */
+  .tab-cta{
+    order:2;margin-top:auto;margin-bottom:0;flex-direction:row;justify-content:center;gap:9px;
+    background:var(--grad);border-radius:var(--r-sm);padding:13px;color:#fff;
+    box-shadow:0 12px 28px -12px var(--acc);
+  }
+  .tab-cta:hover{filter:brightness(1.05);background:var(--grad);color:#fff;}
+  .tab-cta .fab{display:contents;}
+  .tab-cta .fab svg{width:20px;height:20px;color:#fff;}
+  .tab-cta span{margin-top:0;color:#fff;font-family:var(--f-head);font-weight:700;font-size:13.5px;}
+
+  /* no floating fab once sidebar exists */
+  #slipFab{display:none !important;}
+
+  /* footer stretches but stays readable */
+  .footer{margin:40px -28px 0;padding-left:28px;padding-right:28px;}
+  .foot-links{grid-template-columns:repeat(4,1fr);max-width:760px;}
+
+  /* ---- slip rail as a slide-out drawer ---- */
+  #slipRail{
+    display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:80;
+    width:var(--rail-w);max-width:90vw;height:100dvh;
+    background:var(--bg-2);border-left:1px solid var(--line);
+    transform:translateX(101%);transition:transform .3s cubic-bezier(.4,0,.1,1);
+    box-shadow:var(--shadow-lg);
+  }
+  html.slip-open #slipRail{transform:none;}
+  #slipBackdrop{display:block;position:fixed;inset:0;z-index:79;background:rgba(0,8,16,.5);
+    opacity:0;pointer-events:none;transition:opacity .3s;}
+  html.slip-open #slipBackdrop{opacity:1;pointer-events:auto;}
+
+  .rail-head{display:flex;align-items:center;gap:10px;padding:18px 18px 14px;border-bottom:1px solid var(--line);}
+  .rail-head .rail-ico{display:grid;place-items:center;color:var(--acc);}
+  .rail-head .rail-ico svg{width:19px;height:19px;}
+  .rail-head b{font-family:var(--f-head);font-weight:700;font-size:15px;letter-spacing:.01em;}
+  .rail-count{font-family:var(--f-num);font-weight:700;font-size:11px;min-width:20px;height:20px;padding:0 6px;
+    display:grid;place-items:center;border-radius:999px;background:var(--surface-3);color:var(--text-2);}
+  .rail-x{margin-left:auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+    color:var(--text-3);background:var(--surface-2);border:1px solid var(--line);}
+  .rail-x svg{width:15px;height:15px;}
+
+  .rail-body{flex:1;overflow-y:auto;scrollbar-width:thin;}
+  .rail-item{display:flex;align-items:center;gap:11px;padding:13px 18px;}
+  .rail-item + .rail-item{border-top:1px solid var(--line);}
+  .rail-item .ri-x{width:22px;height:22px;border-radius:7px;flex:none;display:grid;place-items:center;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text-3);transition:.13s;}
+  .rail-item .ri-x:hover{color:var(--neg);border-color:var(--neg);}
+  .rail-item .ri-x svg{width:12px;height:12px;}
+  .rail-item .ri-main{flex:1;min-width:0;}
+  .rail-item .ri-team{font-weight:600;font-size:13.5px;}
+  .rail-item .ri-meta{font-size:11px;color:var(--text-3);font-weight:600;margin-top:2px;}
+  .rail-item .ri-odd{font-family:var(--f-num);font-weight:700;font-size:15px;color:var(--acc);}
+
+  .rail-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:54px 30px;color:var(--text-3);}
+  .rail-empty .re-ico{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;
+    background:var(--surface);border:1px solid var(--line);color:var(--text-3);margin-bottom:4px;}
+  .rail-empty .re-ico svg{width:26px;height:26px;}
+  .rail-empty p{font-family:var(--f-head);font-weight:700;font-size:14px;color:var(--text-2);}
+  .rail-empty .re-hint{font-size:12px;line-height:1.5;max-width:24ch;}
+  .rail-empty a{display:inline-flex;align-items:center;gap:5px;margin-top:8px;color:var(--acc);font-weight:600;font-size:13px;}
+  .rail-empty a svg{width:15px;height:15px;}
+
+  .rail-foot{padding:15px 18px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg);}
+  .rail-foot:empty{display:none;}
+  .rf-row{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text-2);font-weight:600;}
+  .rf-comb{font-family:var(--f-num);color:var(--text-3);}
+  .rf-stake{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 10px;
+    font-size:12.5px;font-weight:600;color:var(--text-2);}
+  .rf-input{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:var(--r-sm);padding:0 12px;transition:.15s;}
+  .rf-input:focus-within{border-color:var(--acc);background:var(--surface);}
+  .rf-input i{font-family:var(--f-num);font-weight:700;color:var(--text-3);font-style:normal;}
+  .rf-input input{width:78px;background:none;border:none;outline:none;padding:10px 0;text-align:right;
+    font-family:var(--f-num);font-weight:700;font-size:15px;color:var(--text);}
+  .rf-return{padding:11px 0 14px;}
+  .rf-return b{font-family:var(--f-num);font-weight:700;font-size:19px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .rail-foot .btn{margin-top:2px;}
+  .rf-clear{display:block;width:100%;margin-top:10px;font-size:12px;font-weight:600;color:var(--text-3);padding:4px;}
+  .rf-clear:hover{color:var(--neg);}
+}
+
+/* tablet: 2-column match grids in landscape-ish widths */
+@media(min-width:1024px){
+  .qgrid{grid-template-columns:repeat(4,1fr);}
+  /* any card holding 2+ stacked matches → 2-up grid with hairline dividers */
+  .card:has(> .match + .match){
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;
+    background:var(--line);border-color:var(--line);overflow:hidden;
+  }
+  .card:has(> .match + .match) > .match{background:var(--surface);border-top:none !important;}
+  .card:has(> .match + .match) > .row:first-child{grid-column:1 / -1;background:var(--surface);}
+  /* odd match count: last lone match stretches full width so no dead empty cell */
+  .card:has(> .match + .match) > .match:last-of-type:nth-of-type(odd){grid-column:1 / -1;border-top:1px solid var(--line) !important;}
+}
+
+/* ------------------------------------------------------------
+   DESKTOP (≥1140) — dock the slip rail permanently
+   ------------------------------------------------------------ */
+@media(min-width:1140px){
+  #slipRail{transform:none !important;box-shadow:none;background:var(--bg-2);}
+  #slipBackdrop{display:none !important;}
+  #railClose{display:none;}
+}
+
+/* hide pinned rail (and reclaim its space) on the dedicated Bet-Now page */
+@media(min-width:1140px){
+  [data-page="bet"].app, [data-page="bet"] .app{padding-right:0;}
+}
+[data-page="bet"] #slipRail{display:none !important;}
+[data-page="bet"] #slipBackdrop{display:none !important;}
+
+/* large desktop — a touch more air, wider content */
+@media(min-width:1480px){
+  .hdr-row,.main{max-width:1180px;}
+}
+@media(min-width:1800px){
+  .hdr-row,.main{max-width:1300px;}
+  :root{ --side-w:280px; }
+}

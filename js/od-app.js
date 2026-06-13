@@ -94,6 +94,9 @@ function paintSlip(){
   document.querySelectorAll('[data-odd]').forEach(b=>b.classList.toggle('sel', OD.slipHas(b.dataset.odd)));
   const fab=document.getElementById('slipFab');
   if(fab){ const n=S.slip.length; fab.style.display = n? 'flex':'none'; const c=fab.querySelector('.cnt'); if(c)c.textContent=n; }
+  const hb=document.getElementById('slipBtnCnt');
+  if(hb){ const n=S.slip.length; hb.textContent=n; hb.style.display=n?'grid':'none'; }
+  renderSlipRail();
 }
 OD.paintSlip = paintSlip;
 
@@ -111,7 +114,7 @@ OD.matchCard = function(e, opts){
   const sels = hasDraw
     ? [{id:e.id+'-1',d:m[0],t:e.trend[0],l:'1'},{id:e.id+'-x',d:m[1],t:e.trend[1],l:'X'},{id:e.id+'-2',d:m[2],t:e.trend[2],l:'2'}]
     : [{id:e.id+'-1',d:m[0],t:e.trend[0],l:e.home.abbr},{id:e.id+'-2',d:m[2],t:e.trend[2],l:e.away.abbr}];
-  const oddsHtml = sels.map(s=>`<button class="odd" data-odd="${s.id}" onclick="OD.toggleSlip('${s.id}')"><span class="od-lbl">${s.l}</span>${oddVal(s.d,s.t)}</button>`).join('');
+  const oddsHtml = sels.map(s=>`<div class="odd"><span class="od-lbl">${s.l}</span>${oddVal(s.d,s.t)}</div>`).join('');
   return `<article class="match">
     <div class="match-top">
       <span class="match-meta"><span class="league-tag">${e.league}</span><span>·</span><span>${REGION[e.region]||e.region}</span></span>
@@ -149,7 +152,6 @@ OD.mountHeader = function(active){
     <div class="hdr-actions">
       ${langSeg()}
       <button class="icon-btn" id="tweakOpen" aria-label="Tweaks" style="display:none">${I.sliders}</button>
-      <a class="icon-btn" href="bet-now.html" aria-label="${OD.t('betslip')}">${I.slip}</a>
     </div>
   </div>`;
   el.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{ OD.set('lang',b.dataset.lang); location.reload(); });
@@ -164,7 +166,7 @@ OD.mountTabbar = function(active){
     {k:'help',href:'help.html',icon:'help',l:'nav_help'},
   ];
   el.className='tabbar';
-  el.innerHTML=items.map(it=>{
+  el.innerHTML=`<a class="side-brand" href="index.html" aria-label="Oddlines home"><img class="mark" src="assets/logo-icon.png" alt=""><img class="word" src="assets/wordmark-white.png" alt="Oddlines"></a>` + items.map(it=>{
     if(it.cta) return `<a class="tab tab-cta ${active===it.k?'active':''}" href="${it.href}"><span class="fab">${I[it.icon]}</span><span>${OD.t(it.l)}</span></a>`;
     return `<a class="tab ${active===it.k?'active':''}" href="${it.href}">${I[it.icon]}<span>${OD.t(it.l)}</span></a>`;
   }).join('');
@@ -193,6 +195,98 @@ OD.mountSlipFab = function(){
   document.body.appendChild(a);
 };
 
+/* ---------- shared slip resolver ---------- */
+OD.resolveSlip = function(id){
+  const base=id.replace(/-(1|x|2)$/,''); const sel=id.slice(base.length+1);
+  let ev=null; OD.allEvents().forEach(e=>{if(e.id===base)ev=e;});
+  if(!ev) return null;
+  const m=ev.markets.moneyline;
+  const odds = sel==='1'?m[0]:sel==='x'?m[1]:m[2];
+  const team = sel==='1'?ev.home.name:sel==='2'?ev.away.name:OD.t('draw');
+  return {ev,odds,lbl:sel.toUpperCase(),team};
+};
+
+/* ---------- docked bet-slip rail (tablet drawer / desktop pinned) ---------- */
+function stakeGet(){ const v=parseFloat(localStorage.getItem('oddlines.stake')); return (isFinite(v)&&v>0)?v:10; }
+function stakeSet(v){ localStorage.setItem('oddlines.stake', String(v)); }
+
+OD.mountSlipRail = function(){
+  if(document.getElementById('slipRail')) return;
+  const I=OD.icons, t=OD.t;
+  const bd=document.createElement('div'); bd.id='slipBackdrop'; bd.onclick=()=>OD.toggleSlipRail(false);
+  const r=document.createElement('aside'); r.id='slipRail'; r.setAttribute('aria-label', t('betslip'));
+  r.innerHTML=`
+    <div class="rail-head">
+      <span class="rail-ico">${I.slip}</span>
+      <b>${t('betslip')}</b>
+      <span class="rail-count" id="railCount">0</span>
+      <button class="rail-x" id="railClose" aria-label="Close">${I.x}</button>
+    </div>
+    <div class="rail-body" id="railBody"></div>
+    <div class="rail-foot" id="railFoot"></div>`;
+  document.body.appendChild(bd);
+  document.body.appendChild(r);
+  r.querySelector('#railClose').onclick=()=>OD.toggleSlipRail(false);
+  renderSlipRail();
+};
+
+OD.toggleSlipRail = function(force){
+  const open = (typeof force==='boolean') ? force : !document.documentElement.classList.contains('slip-open');
+  document.documentElement.classList.toggle('slip-open', open);
+};
+
+function renderSlipRail(){
+  const r=document.getElementById('slipRail'); if(!r) return;
+  const I=OD.icons, t=OD.t, fmt=OD.get('odds');
+  const ids=OD.get('slip');
+  const body=r.querySelector('#railBody'), foot=r.querySelector('#railFoot');
+  const cnt=r.querySelector('#railCount'); if(cnt) cnt.textContent=ids.length;
+  if(!ids.length){
+    body.innerHTML=`<div class="rail-empty"><span class="re-ico">${I.slip}</span><p>${t('slip_empty')}</p><span class="re-hint">${t('slip_hint')}</span><a href="odds.html">${t('oddsboard')} ${I.arrow}</a></div>`;
+    foot.innerHTML='';
+    return;
+  }
+  let combined=1;
+  body.innerHTML = ids.map(id=>{
+    const s=OD.resolveSlip(id); if(!s) return '';
+    combined *= s.odds;
+    return `<div class="rail-item">
+      <button class="ri-x" onclick="OD.toggleSlip('${id}')" aria-label="Remove">${I.x}</button>
+      <div class="ri-main"><div class="ri-team">${s.team}</div>
+        <div class="ri-meta">${s.ev.home.abbr} v ${s.ev.away.abbr} · ${s.ev.league}</div></div>
+      <span class="ri-odd">${OD.fmtOdds(s.odds,fmt)}</span></div>`;
+  }).join('');
+  const stake=stakeGet();
+  const ret=(stake*combined);
+  const isParlay = ids.length>1;
+  foot.innerHTML=`
+    <div class="rf-row"><span>${ids.length} ${t('selections')}</span><span class="rf-comb">${isParlay?t('combined')+' '+OD.fmtOdds(combined,fmt):''}</span></div>
+    <label class="rf-stake"><span>${t('stake')}</span>
+      <span class="rf-input"><i>$</i><input id="railStake" type="number" min="1" step="1" value="${stake}" inputmode="decimal"></span></label>
+    <div class="rf-row rf-return"><span>${t('potential')}</span><b>$${ret.toFixed(2)}</b></div>
+    <a class="btn btn-grad btn-block" href="bet-now.html">${t('continue_app')} ${I.arrow}</a>
+    <button class="rf-clear" onclick="OD.set('slip',[]);OD.paintSlip();">${t('clear_slip')}</button>`;
+  const si=foot.querySelector('#railStake');
+  if(si) si.oninput=()=>{ const v=parseFloat(si.value); stakeSet(isFinite(v)&&v>0?v:0); const rr=r.querySelector('.rf-return b'); if(rr) rr.textContent='$'+(((isFinite(v)?v:0))*combined).toFixed(2); };
+}
+OD.renderSlipRail = renderSlipRail;
+
+function initRail(){
+  // header slip button: on tablet width, open drawer instead of navigating
+  const b=document.getElementById('slipBtn');
+  if(b) b.addEventListener('click', (e)=>{
+    const w=window.innerWidth;
+    if(w>=768 && w<1140){ e.preventDefault(); OD.toggleSlipRail(); }
+  });
+  // floating fab: same drawer behaviour on tablet
+  const fab=document.getElementById('slipFab');
+  if(fab) fab.addEventListener('click',(e)=>{
+    const w=window.innerWidth;
+    if(w>=768 && w<1140){ e.preventDefault(); OD.toggleSlipRail(); }
+  });
+}
+OD.initRail = initRail;
+
 /* ---------- accordion ---------- */
 OD.initAccordions = function(root){
   (root||document).querySelectorAll('.acc-hd').forEach(h=>{
@@ -203,14 +297,13 @@ OD.initAccordions = function(root){
 /* ---------- boot ---------- */
 OD.boot = function(active){
   if(new URLSearchParams(location.search).has('embed')) document.documentElement.setAttribute('data-embed','1');
+  document.documentElement.setAttribute('data-page', active||'');
   applyTheme();
   OD.mountHeader(active);
   OD.mountTabbar(active);
   OD.mountFooter();
-  OD.mountSlipFab();
   applyI18n();
   OD.initAccordions();
-  paintSlip();
   if(OD.initTweaks) OD.initTweaks();
 };
 })();

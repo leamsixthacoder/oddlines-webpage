@@ -98,9 +98,9 @@ function buildHero(v){
         <div class="spot-team"><span class="crest" style="background:${e.away.color}">${e.away.abbr}</span><span class="name">${e.away.name}</span></div>
       </div>
       <div class="odds-row">
-        <button class="odd" data-odd="${e.id}-1" onclick="OD.toggleSlip('${e.id}-1')"><span class="od-lbl">1</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[0],OD.get('odds'))}</span></button>
-        <button class="odd" data-odd="${e.id}-x" onclick="OD.toggleSlip('${e.id}-x')"><span class="od-lbl">X</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[1],OD.get('odds'))}</span></button>
-        <button class="odd" data-odd="${e.id}-2" onclick="OD.toggleSlip('${e.id}-2')"><span class="od-lbl">2</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[2],OD.get('odds'))}</span></button>
+        <div class="odd"><span class="od-lbl">1</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[0],OD.get('odds'))}</span></div>
+        <div class="odd"><span class="od-lbl">X</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[1],OD.get('odds'))}</span></div>
+        <div class="odd"><span class="od-lbl">2</span><span class="od-val">${OD.fmtOdds(e.markets.moneyline[2],OD.get('odds'))}</span></div>
       </div>
     </div></div>
   </section>`;

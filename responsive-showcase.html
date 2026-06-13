@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oddlines — Responsive Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0a1119;}
+  .vp{display:block;border:0;background:#00101D;}
+  .dev{border-radius:18px;overflow:hidden;background:#00101D;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06);}
+  .dev.phone{border-radius:34px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 10px #0d1620, 0 0 0 11px rgba(255,255,255,.08);}
+  .dev.laptop{border-radius:12px 12px 0 0;}
+  .lid{height:16px;background:linear-gradient(#1a2735,#0d1620);border-radius:0 0 13px 13px;
+    box-shadow:0 12px 22px -12px rgba(0,0,0,.7);position:relative;}
+  .lid::before{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);width:64px;height:5px;
+    background:#060c12;border-radius:0 0 6px 6px;}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// A device shell wrapping an iframe at its native (responsive) width.
+function Device({src, w, h, kind}){
+  return (
+    <div className={"dev "+(kind||"")} style={{width:w}}>
+      <iframe className="vp" src={src} width={w} height={h} title={src}
+        style={{width:w+'px', height:h+'px'}}></iframe>
+      {kind==='laptop' ? <div className="lid" style={{width:w+'px'}}></div> : null}
+    </div>
+  );
+}
+
+// Returns a Fragment of four artboards (called as a function so the canvas
+// flattens the Fragment and sees the DCArtboards directly).
+function Across({page, embedPhone}){
+  const phoneSrc = page + (page.includes('?')?'&':'?') + 'embed=1';
+  return (
+    <React.Fragment>
+      <DCArtboard id={page+"-phone"}  label="Phone · 390"   width={390}  height={844}>
+        <Device src={embedPhone===false?page:phoneSrc} w={390} h={844} kind="phone"/>
+      </DCArtboard>
+      <DCArtboard id={page+"-tablet"} label="Tablet · 1024" width={1024} height={768}>
+        <Device src={page} w={1024} h={768}/>
+      </DCArtboard>
+      <DCArtboard id={page+"-laptop"} label="Laptop · 1280" width={1280} height={800}>
+        <Device src={page} w={1280} h={800} kind="laptop"/>
+      </DCArtboard>
+      <DCArtboard id={page+"-desktop"} label="Desktop · 1440" width={1440} height={900}>
+        <Device src={page} w={1440} h={900}/>
+      </DCArtboard>
+    </React.Fragment>
+  );
+}
+
+function App(){
+  return (
+    <DesignCanvas>
+      <DCSection id="home" title="Home" subtitle="Mobile column → left sidebar + multi-column grid → sidebar + docked bet-slip rail">
+        {Across({page:"index.html"})}
+      </DCSection>
+      <DCSection id="odds" title="Odds Board" subtitle="Match lists reflow to a 2-up grid on wide screens; the slip rail docks on the right">
+        {Across({page:"odds.html"})}
+      </DCSection>
+      <DCSection id="sports" title="All Sports" subtitle="Accordion catalogue inside the responsive shell">
+        {Across({page:"sports.html"})}
+      </DCSection>
+      <DCSection id="bet" title="Bet Now" subtitle="The dedicated slip page — the docked rail steps aside here">
+        {Across({page:"bet-now.html"})}
+      </DCSection>
+      <DCSection id="help" title="Help Center" subtitle="FAQ + contact, centered content column">
+        {Across({page:"help.html"})}
+      </DCSection>
+      <DCSection id="about" title="About" subtitle="Brand story, stats and team">
+        {Across({page:"about.html"})}
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
