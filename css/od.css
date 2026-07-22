@@ -197,9 +197,15 @@ ul{list-style:none;}
 .tm-join:hover{background:color-mix(in oklab,var(--mint) 16%,transparent);}
 .tm-login{background:var(--grad);color:#fff;box-shadow:0 6px 18px -8px var(--acc);}
 .tm-login:hover{filter:brightness(1.07);}
-@media(max-width:860px){
-  .tm-nav{display:none;}
+/* secondary chrome (lang switch, Offers, Join) drops first — nav links stay */
+@media(max-width:1023px){
   .topbar .seg,.tm-ghost,.tm-join{display:none;}
+}
+/* below 768 the bottom tab bar takes over as primary nav, so the top nav
+   links can drop too — this boundary MUST match the tab bar's (768px)
+   or there's a dead zone with no navigation at all */
+@media(max-width:767px){
+  .tm-nav{display:none;}
   .topbar-in{gap:10px;padding:10px 16px;}
 }
 
@@ -442,11 +448,11 @@ ul{list-style:none;}
 
 /* ============================================================
    RESPONSIVE — tablet · laptop · desktop
-   Phone (<768): unchanged mobile column + bottom tab bar.
-   Tablet (768–1139): fixed left sidebar + slide-out slip drawer.
-   Desktop (≥1140): sidebar + content + permanently docked slip rail.
+   Phone (<768): mobile column + bottom tab bar.
+   Tablet (768–1139): top nav bar + wide content column + slide-out slip drawer.
+   Desktop (≥1140): top nav bar + content + permanently docked slip rail.
    ============================================================ */
-:root{ --side-w:244px; --rail-w:348px; }
+:root{ --rail-w:348px; }
 
 /* header slip badge */
 .od-slip-btn{position:relative;}
@@ -461,60 +467,20 @@ ul{list-style:none;}
 #slipBackdrop{display:none;}
 
 /* ------------------------------------------------------------
-   TABLET & UP  (≥768) — bottom bar becomes a left sidebar
+   TABLET & UP  (≥768) — top nav bar takes over from the bottom tab bar
    ------------------------------------------------------------ */
 @media(min-width:768px){
   .app{display:block;}
   .frame{max-width:none;width:auto;border:none;overflow-x:visible;}
 
   /* top menu is the primary nav — hide the mobile bottom tab bar */
-  .tabbar{display:none !important;}
-  #slipFab{display:none !important;}
+  .tabbar{display:none;}
+  #slipFab{display:none;}
 
   /* content column */
   .main{max-width:1100px;margin:0 auto;padding:0 28px 80px;}
   .section{margin-top:30px;}
   [data-page="home"] .main{max-width:1320px;}
-
-  /* ---- #tabbar → vertical sidebar ---- */
-  .tabbar{
-    left:0;right:auto;top:0;bottom:0;transform:none;
-    width:var(--side-w);max-width:none;height:100dvh;
-    grid-template-columns:none;display:flex;flex-direction:column;align-items:stretch;gap:5px;
-    border-top:none;border-right:1px solid var(--line);
-    padding:20px 16px calc(18px + env(safe-area-inset-bottom));
-    background:color-mix(in oklab,var(--bg) 94%, transparent);
-    overflow-y:auto;scrollbar-width:none;
-  }
-  .tabbar::-webkit-scrollbar{display:none;}
-  .side-brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;margin-bottom:8px;border-bottom:1px solid var(--line);}
-  .side-brand .mark{height:30px;width:auto;}
-  .side-brand .word{height:15px;width:auto;}
-
-  .tab{
-    flex-direction:row;justify-content:flex-start;align-items:center;gap:14px;
-    padding:11px 13px;border-radius:var(--r-sm);order:1;color:var(--text-2);
-    transition:background .15s,color .15s;
-  }
-  .tab svg{width:21px;height:21px;}
-  .tab span{font-family:var(--f-head);font-weight:700;font-size:13.5px;letter-spacing:.01em;}
-  .tab:hover{background:var(--surface-2);color:var(--text);}
-  .tab.active{background:var(--surface-2);color:var(--text);}
-  .tab.active svg{color:var(--acc);}
-
-  /* CTA → full-width gradient button pinned to bottom */
-  .tab-cta{
-    order:2;margin-top:auto;margin-bottom:0;flex-direction:row;justify-content:center;gap:9px;
-    background:var(--grad);border-radius:var(--r-sm);padding:13px;color:#fff;
-    box-shadow:0 12px 28px -12px var(--acc);
-  }
-  .tab-cta:hover{filter:brightness(1.05);background:var(--grad);color:#fff;}
-  .tab-cta .fab{display:contents;}
-  .tab-cta .fab svg{width:20px;height:20px;color:#fff;}
-  .tab-cta span{margin-top:0;color:#fff;font-family:var(--f-head);font-weight:700;font-size:13.5px;}
-
-  /* no floating fab once sidebar exists */
-  #slipFab{display:none !important;}
 
   /* footer stretches but stays readable */
   .footer{margin:40px -28px 0;padding-left:28px;padding-right:28px;}
@@ -596,6 +562,9 @@ ul{list-style:none;}
   .card:has(> .match + .match) > .row:first-child{grid-column:1 / -1;background:var(--surface);}
   /* odd match count: last lone match stretches full width so no dead empty cell */
   .card:has(> .match + .match) > .match:last-of-type:nth-of-type(odd){grid-column:1 / -1;border-top:1px solid var(--line) !important;}
+
+  /* wide content column: stat grid gets breathing room instead of two huge tiles */
+  .stats{grid-template-columns:repeat(4,1fr);}
 }
 
 /* ------------------------------------------------------------
@@ -605,6 +574,8 @@ ul{list-style:none;}
   #slipRail{transform:none !important;box-shadow:none;background:var(--bg-2);}
   #slipBackdrop{display:none !important;}
   #railClose{display:none;}
+  /* reserve space so the docked rail never overlaps page content */
+  .app{padding-right:var(--rail-w);}
 }
 
 /* hide pinned rail (and reclaim its space) on the dedicated Bet-Now page */

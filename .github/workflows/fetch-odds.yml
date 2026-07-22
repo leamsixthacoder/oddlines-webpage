@@ -1,0 +1,38 @@
+name: Fetch odds data
+
+on:
+  schedule:
+    # Every 12 hours. Keeps us comfortably inside The Odds API's free
+    # 500-credits/month tier for this league list (see scripts/fetch-odds.mjs).
+    - cron: '0 */12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-odds
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch odds and rebuild data/odds.json
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: node scripts/fetch-odds.mjs
+
+      - name: Commit updated data
+        run: |
+          git config user.name "oddlines-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/odds.json
+          git diff --quiet --cached || git commit -m "chore: refresh odds data"
+          git push

@@ -318,5 +318,18 @@ OD.boot = function(active){
   applyI18n();
   OD.initAccordions();
   if(OD.initTweaks) OD.initTweaks();
+  // pages render once immediately with whatever catalogue is available
+  // (fallback data), then silently again if/when the live feed lands
+  if(OD.sportsReady){
+    OD.sportsReady.then(()=>{
+      // drop any slip selections that no longer resolve once the live
+      // catalogue replaces the fallback one (different event ids)
+      const cur=S.slip, cleaned=cur.filter(id=>OD.resolveSlip(id));
+      if(cleaned.length!==cur.length){ S.slip=cleaned; save(); }
+      if(OD.render) OD.render();
+      applyI18n();
+      paintSlip();
+    });
+  }
 };
 })();

@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-07-22T00:00:00.000Z",
+  "seed": true,
+  "sports": [
+    {
+      "key": "soccer",
+      "icon": "soccer",
+      "leagues": [
+        {
+          "key": "epl",
+          "name": "Premier League",
+          "region": "EN",
+          "events": [
+            {
+              "id": "seed-s1",
+              "league": "Premier League",
+              "region": "EN",
+              "home": { "name": "Arsenal", "abbr": "ARS", "color": "#ef0107" },
+              "away": { "name": "Man City", "abbr": "MCI", "color": "#6cabdd" },
+              "start": "2026-07-25T16:30:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [2.55, 3.40, 2.60] },
+              "trend": ["", "", ""],
+              "big": true
+            }
+          ]
+        },
+        {
+          "key": "laliga",
+          "name": "LaLiga",
+          "region": "ES",
+          "events": [
+            {
+              "id": "seed-s2",
+              "league": "LaLiga",
+              "region": "ES",
+              "home": { "name": "Real Madrid", "abbr": "RMA", "color": "#0a3d8f" },
+              "away": { "name": "Barcelona", "abbr": "BAR", "color": "#a50044" },
+              "start": "2026-07-26T19:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [1.95, 3.60, 3.80] },
+              "trend": ["", "", ""],
+              "big": false
+            }
+          ]
+        },
+        {
+          "key": "ligamx",
+          "name": "Liga MX",
+          "region": "MX",
+          "events": [
+            {
+              "id": "seed-s3",
+              "league": "Liga MX",
+              "region": "MX",
+              "home": { "name": "América", "abbr": "AME", "color": "#ffd100" },
+              "away": { "name": "Chivas", "abbr": "GDL", "color": "#c8102e" },
+              "start": "2026-07-27T02:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [2.05, 3.10, 3.60] },
+              "trend": ["", "", ""],
+              "big": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "basketball",
+      "icon": "basketball",
+      "leagues": [
+        {
+          "key": "nba",
+          "name": "NBA",
+          "region": "US",
+          "events": [
+            {
+              "id": "seed-b1",
+              "league": "NBA",
+              "region": "US",
+              "home": { "name": "Lakers", "abbr": "LAL", "color": "#552583" },
+              "away": { "name": "Celtics", "abbr": "BOS", "color": "#007a33" },
+              "start": "2026-07-24T23:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [2.30, 0, 1.62] },
+              "trend": ["", "", ""],
+              "big": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "football",
+      "icon": "football",
+      "leagues": [
+        {
+          "key": "nfl",
+          "name": "NFL",
+          "region": "US",
+          "events": [
+            {
+              "id": "seed-f1",
+              "league": "NFL",
+              "region": "US",
+              "home": { "name": "Chiefs", "abbr": "KC", "color": "#e31837" },
+              "away": { "name": "49ers", "abbr": "SF", "color": "#aa0000" },
+              "start": "2026-07-28T18:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [1.74, 0, 2.08] },
+              "trend": ["", "", ""],
+              "big": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "baseball",
+      "icon": "baseball",
+      "leagues": [
+        {
+          "key": "mlb",
+          "name": "MLB",
+          "region": "US",
+          "events": [
+            {
+              "id": "seed-y1",
+              "league": "MLB",
+              "region": "US",
+              "home": { "name": "Dodgers", "abbr": "LAD", "color": "#005a9c" },
+              "away": { "name": "Yankees", "abbr": "NYY", "color": "#0c2340" },
+              "start": "2026-07-25T20:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [1.80, 0, 2.00] },
+              "trend": ["", "", ""],
+              "big": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mma",
+      "icon": "mma",
+      "leagues": [
+        {
+          "key": "ufc",
+          "name": "MMA",
+          "region": "INT",
+          "events": [
+            {
+              "id": "seed-m1",
+              "league": "MMA",
+              "region": "INT",
+              "home": { "name": "Makhachev", "abbr": "MAK", "color": "#b9985a" },
+              "away": { "name": "Oliveira", "abbr": "OLI", "color": "#1f8a4c" },
+              "start": "2026-08-02T03:00:00.000Z",
+              "live": false, "minute": null, "score": null,
+              "markets": { "moneyline": [1.45, 0, 2.75] },
+              "trend": ["", "", ""],
+              "big": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

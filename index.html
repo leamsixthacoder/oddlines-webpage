@@ -63,7 +63,8 @@
   const I=OD.icons;
   const vals=[{i:'star',t:'v1t',d:'v1d'},{i:'zap',t:'v2t',d:'v2d'},{i:'shield',t:'v3t',d:'v3d'}];
   document.getElementById('valueList').innerHTML = vals.map(v=>`<div class="value"><span class="vi">${I[v.i]}</span><div><h3 data-i18n="${v.t}"></h3><p data-i18n="${v.d}"></p></div></div>`).join('');
-  OD.renderHome();
+  OD.render = OD.renderHome;
+  OD.render();
   OD.boot('home');
 })();
 </script>

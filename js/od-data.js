@@ -113,7 +113,7 @@ function ev(id, league, region, home, away, mins, opts){
 }
 const T = (n,a,c)=>({name:n,abbr:a,color:c});
 
-/* ---------- mock catalogue ---------- */
+/* ---------- fallback catalogue (used until/unless data/odds.json loads) ---------- */
 OD.sports = [
   { key:'soccer', icon:'soccer', leagues:[
     { key:'laliga', name:'LaLiga', region:'ES', events:[
@@ -186,3 +186,16 @@ OD.fmtOdds = function(dec, fmt){
   }
   return dec.toFixed(2); // decimal
 };
+
+/* ---------- live data load ----------
+   data/odds.json is generated on a schedule by .github/workflows/fetch-odds.yml
+   (see scripts/fetch-odds.mjs) — a static file, no API key ever touches the
+   browser. If it's missing, stale-shaped, or the fetch fails for any reason
+   (offline, opened via file://, first deploy before the workflow has run),
+   we silently keep the fallback catalogue above so the site never breaks. */
+OD.sportsReady = fetch('data/odds.json', {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(new Error('data/odds.json: ' + r.status)))
+  .then(data => {
+    if(data && Array.isArray(data.sports) && data.sports.length) OD.sports = data.sports;
+  })
+  .catch(()=>{ /* keep the fallback catalogue */ });
